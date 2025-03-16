@@ -31,6 +31,7 @@ const NavBar = () => {
       <div className="flex justify-between items-center h-16 px-6 lg:px-10 max-w-7xl mx-auto">
         <div className="text-2xl font-bold flex items-center gap-2">
           <Image
+            onClick={() => router.push("/")}
             src={"/icons/web/icon-192.png"}
             alt="Xyen"
             width={32}
