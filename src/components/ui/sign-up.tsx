@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
 
 import { signUpSchema } from "@/lib/schema";
 import {
@@ -22,11 +22,16 @@ import { FormError } from "@/components/ui/form-error";
 import { FormSuccess } from "@/components/ui/form-success";
 import { AccentCard } from "@/components/ui/accent-card";
 import { AccentButton } from "@/components/ui/accent-button";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 const SignUp = () => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -41,8 +46,26 @@ const SignUp = () => {
   const onSubmit = (values: z.infer<typeof signUpSchema>) => {
     setError("");
     setSuccess("");
-    startTransition(() => {
-      console.log(values);
+    startTransition(async () => {
+      const { data, error } = await authClient.signUp.email(
+        {
+          email: values.email,
+          name: values.name,
+          password: values.password,
+          callbackURL: "/dashboard",
+        },
+        {
+          onSuccess: (context) => {
+            console.log(context);
+            router.push("/dashboard");
+          },
+          onError(context) {
+            setError(context.error.message);
+          },
+        }
+      );
+      console.log(data);
+      console.log(error);
     });
   };
 
@@ -68,6 +91,7 @@ const SignUp = () => {
                       <FormLabel>Name</FormLabel>
                       <FormControl>
                         <Input
+                          disabled={isPending}
                           placeholder="John Doe"
                           {...field}
                           className="h-11"
@@ -88,6 +112,7 @@ const SignUp = () => {
                       <FormLabel>Email</FormLabel>
                       <FormControl>
                         <Input
+                          disabled={isPending}
                           placeholder="john@example.com"
                           {...field}
                           className="h-11"
@@ -107,12 +132,26 @@ const SignUp = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="********"
-                          {...field}
-                          className="h-11"
-                        />
+                        <div className="relative">
+                          <Input
+                            disabled={isPending}
+                            type={showPassword ? "text" : "password"}
+                            placeholder="********"
+                            {...field}
+                            className="h-11 pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
                       </FormControl>
                       <FormDescription className="text-xs">
                         Minimum 8 characters, at least one uppercase, one
@@ -129,12 +168,28 @@ const SignUp = () => {
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="********"
-                          {...field}
-                          className="h-11"
-                        />
+                        <div className="relative">
+                          <Input
+                            disabled={isPending}
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="********"
+                            {...field}
+                            className="h-11 pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
+                            className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
                       </FormControl>
                       <FormDescription className="text-xs">
                         Confirm your password to ensure it matches.
@@ -151,7 +206,7 @@ const SignUp = () => {
                   className="mt-6"
                 >
                   {isPending ? (
-                    "Creating account..."
+                    <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <>
                       Sign Up <ArrowRight className="ml-2 h-4 w-4" />
