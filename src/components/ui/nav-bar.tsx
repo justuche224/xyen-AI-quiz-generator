@@ -3,18 +3,21 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Sheet,
   SheetContent,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const NavBar = () => {
   const pathname = usePathname();
+  const router = useRouter();
 
   const navLinks = [
     { href: "/about", label: "About Us" },
@@ -24,8 +27,8 @@ const NavBar = () => {
   ];
 
   return (
-    <nav className="p-10">
-      <div className="flex justify-between items-center h-10">
+    <nav className="fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-sm z-50">
+      <div className="flex justify-between items-center h-16 px-6 lg:px-10 max-w-7xl mx-auto">
         <div className="text-2xl font-bold flex items-center gap-2">
           <Image
             src={"/icons/web/icon-192.png"}
@@ -43,8 +46,16 @@ const NavBar = () => {
           ))}
         </div>
         <div className="md:flex gap-4 hidden">
-          <Button variant="outline">Sign In</Button>
-          <Button className="rounded-none">Sign Up</Button>
+          <Button variant="outline" onClick={() => router.push("/sign-in")}>
+            Sign In
+          </Button>
+          <Button
+            className="rounded-none"
+            onClick={() => router.push("/sign-up")}
+          >
+            Sign Up
+          </Button>
+          <ModeToggle />
         </div>
         <div className="inline-block md:hidden">
           <Sheet>
@@ -78,6 +89,9 @@ const NavBar = () => {
                   <Button className="w-full py-6 text-lg">Sign Up</Button>
                 </div>
               </div>
+              <SheetFooter>
+                <ModeToggle />
+              </SheetFooter>
             </SheetContent>
           </Sheet>
         </div>
