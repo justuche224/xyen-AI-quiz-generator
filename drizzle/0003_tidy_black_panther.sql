@@ -1,0 +1,1 @@
+ALTER TABLE "quiz" ALTER COLUMN "title" SET NOT NULL;

@@ -15,7 +15,7 @@ import {
 import { Menu } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 
-const NavBar = () => {
+const PublicNavBar = () => {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -101,7 +101,7 @@ const NavBar = () => {
   );
 };
 
-export default NavBar;
+export default PublicNavBar;
 
 const NavBarItem = ({
   children,

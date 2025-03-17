@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
  * Checks if the user's session is valid and redirects to login if not
  *
  * @param {Object} options - Configuration options
- * @param {string} options.redirectTo - Path to redirect to if authentication fails (default: "/login")
+ * @param {string} options.redirectTo - Path to redirect to if authentication fails (default: "/sign-in")
  * @param {boolean} options.removeExpiredSession - Whether to remove expired sessions (default: true)
  * @returns {Promise<Object>} - The session and user object if authenticated
  */
