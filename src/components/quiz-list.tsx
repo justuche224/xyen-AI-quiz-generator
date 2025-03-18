@@ -7,6 +7,7 @@ import { AccentCard } from "@/components/ui/accent-card";
 interface Quiz {
   id: string;
   title: string;
+  status: string;
   createdAt: Date;
 }
 
@@ -58,6 +59,7 @@ export function QuizList({ quizzes }: QuizListProps) {
             key={quiz.id}
             id={quiz.id}
             title={quiz.title}
+            status={quiz.status}
             createdAt={quiz.createdAt}
           />
         ))}

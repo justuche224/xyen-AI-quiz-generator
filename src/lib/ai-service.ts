@@ -45,7 +45,7 @@ export async function generateQuiz(text: string, type: string) {
             ]
           }
         ]
-        don't use markdown code block dont add the line brakes dont add the json backticks, just plain json nothing else. i repeat no markdown code block, nor markdown
+        don't use markdown code block dont add the line brakes, dont add the json backticks, just plain json nothing else. i repeat no markdown code block, nor markdown
         `,
         },
         {

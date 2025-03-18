@@ -18,6 +18,7 @@ const page = async () => {
     columns: {
       id: true,
       title: true,
+      status: true,
       createdAt: true,
     },
     orderBy: [desc(quiz.createdAt)],
