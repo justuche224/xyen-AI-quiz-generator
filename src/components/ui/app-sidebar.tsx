@@ -21,6 +21,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "./skeleton";
 import { NavUser } from "./app-sidebar-user";
 import { getquizzes } from "@/actions/get-quizzes";
+import Image from "next/image";
 
 const favorites = [
   { name: "Dashboard", icon: <Home className="h-4 w-4" />, link: "/dashboard" },
@@ -71,8 +72,17 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-r pt-14">
       <SidebarContent>
+        <div className="flex items-center justify-start px-3 my-4 gap-2 md:hidden">
+          <Image
+            src="/icons/web/icon-96.png"
+            alt="logo"
+            width={30}
+            height={30}
+            className="rounded-full"
+          />
+          <h1 className="text-2xl font-bold">Xyen AI</h1>
+        </div>
         <SidebarGroup>
-          <SidebarGroupLabel>Favorites</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {favorites.map((item) => (
