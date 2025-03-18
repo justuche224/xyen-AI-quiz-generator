@@ -18,34 +18,33 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { getQuizes } from "@/actions/get-quizes";
 import { Skeleton } from "./skeleton";
 import { NavUser } from "./app-sidebar-user";
+import { getquizzes } from "@/actions/get-quizzes";
 
 const favorites = [
   { name: "Dashboard", icon: <Home className="h-4 w-4" />, link: "/dashboard" },
   {
-    name: "Create Quize",
+    name: "Create Quiz",
     icon: <PlusCircle className="h-4 w-4" />,
-    link: "/dashboard/create-quize",
+    link: "/dashboard/create-quiz",
   },
   {
-    name: "Quizes",
+    name: "quizzes",
     icon: <BookOpen className="h-4 w-4" />,
-    link: "/dashboard/quizes",
+    link: "/dashboard/quizzes",
   },
 ];
 
-interface Quizes {
+interface quizzes {
   id: string;
-  status: "PROCESSING" | "COMPLETED" | "FAILED";
   title: string;
 }
 
-type QuizArray = Quizes[];
+type QuizArray = quizzes[];
 
 export function AppSidebar() {
-  const [quizes, setQuizes] = useState<QuizArray | null>(null);
+  const [quizzes, setquizzes] = useState<QuizArray | null>(null);
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
@@ -55,18 +54,18 @@ export function AppSidebar() {
     if (isLoading) return;
     if (!user) router.push("/sign-in");
 
-    const fetchQuizes = async () => {
+    const fetchquizzes = async () => {
       try {
-        const quizes = await getQuizes(7);
-        setQuizes(quizes);
+        const quizzes = await getquizzes(7);
+        setquizzes(quizzes);
       } catch (error) {
-        console.error("Failed to fetch quizes:", error);
+        console.error("Failed to fetch quizzes:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchQuizes();
+    fetchquizzes();
   }, [isLoading, user, router]);
 
   return (
@@ -92,7 +91,7 @@ export function AppSidebar() {
         </SidebarGroup>
         <SidebarSeparator />
         <SidebarGroup>
-          <SidebarGroupLabel>Recent Quizes</SidebarGroupLabel>
+          <SidebarGroupLabel>Recent quizzes</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {loading ? (
@@ -101,14 +100,18 @@ export function AppSidebar() {
                     <SidebarMenuSkeleton />
                   </SidebarMenuItem>
                 ))
-              ) : quizes && quizes.length > 0 ? (
-                quizes.map((quiz) => (
+              ) : quizzes && quizzes.length > 0 ? (
+                quizzes.map((quiz) => (
                   <SidebarMenuItem key={quiz.id}>
                     <SidebarMenuButton
                       onClick={() =>
-                        router.push(`/dashboard/quizes/${quiz.id}`)
+                        router.push(`/dashboard/quizzes/${quiz.id}`)
                       }
-                      variant={pathname === quiz.title ? "outline" : "default"}
+                      variant={
+                        pathname === `/dashboard/quizzes/${quiz.id}`
+                          ? "outline"
+                          : "default"
+                      }
                     >
                       <span>{quiz.title}</span>
                     </SidebarMenuButton>

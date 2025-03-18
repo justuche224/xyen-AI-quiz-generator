@@ -3,10 +3,10 @@
 import { db } from "@/db";
 import { quiz } from "@/db/schema";
 import { checkAuthSession } from "@/lib/server-auth-helper";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 
-export const getQuizes = async (limit: number = 10, offset: number = 0) => {
+export const getquizzes = async (limit: number = 10, offset: number = 0) => {
   try {
     const session = await checkAuthSession();
 
@@ -15,11 +15,14 @@ export const getQuizes = async (limit: number = 10, offset: number = 0) => {
     }
 
     const quizList = await db.query.quiz.findMany({
-      where: eq(quiz.userId, session.user.id),
+      where: and(
+        eq(quiz.userId, session.user.id),
+        eq(quiz.status, "COMPLETED")
+      ),
       columns: {
         id: true,
         title: true,
-        status: true,
+        // status: true,
       },
       orderBy: [desc(quiz.createdAt)],
       limit,

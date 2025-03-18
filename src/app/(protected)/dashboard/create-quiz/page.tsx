@@ -175,7 +175,7 @@ export default function DocumentUploader() {
         } else if (data.status.toLocaleLowerCase() === "completed") {
           quizData = data;
           // console.log("Data", data);
-          router.push(`/dashboard/quizes/${quizData.quizId}`);
+          router.push(`/dashboard/quizzes/${quizData.quizId}`);
           break;
         } else {
           // console.log(data);
