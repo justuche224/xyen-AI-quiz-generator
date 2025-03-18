@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { quiz } from "@/db/schema";
 import { checkAuthSession } from "@/lib/server-auth-helper";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import React from "react";
 import { QuizList } from "@/components/quiz-list";
@@ -14,7 +14,7 @@ const page = async () => {
   }
 
   const quizList = await db.query.quiz.findMany({
-    where: eq(quiz.userId, session.user.id),
+    where: and(eq(quiz.userId, session.user.id), eq(quiz.status, "COMPLETED")),
     columns: {
       id: true,
       title: true,
