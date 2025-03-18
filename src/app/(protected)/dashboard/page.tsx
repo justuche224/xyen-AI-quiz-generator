@@ -1,7 +1,9 @@
 import React from "react";
 import { checkAuthSession } from "@/lib/server-auth-helper";
 import SignOutButton from "@/components/ui/sign-out-button";
+import { redirect } from "next/navigation";
 const page = async () => {
+  return redirect("/dashboard/quizzes");
   const session = await checkAuthSession();
   // console.log(session);
 

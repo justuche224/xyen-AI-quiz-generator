@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type React from "react";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -44,7 +45,6 @@ export const metadata: ExtendedMetadata = {
   ],
   canonical: "https://xyen-ai.vercel.app",
   robots: "index, follow",
-  themeColor: "#ddffb3",
   author: "Xyen AI Team",
   openGraph: {
     title: "Xyen AI Quizzer - Generate & Practice Exam Questions with AI",
@@ -86,6 +86,10 @@ export const metadata: ExtendedMetadata = {
       name: "Xyen AI",
     },
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#ddffb3",
 };
 
 export default function RootLayout({
