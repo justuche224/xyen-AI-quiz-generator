@@ -5,7 +5,8 @@ import { pdf, quiz } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 const PDF_SERVICE_URL =
-  process.env.PDF_SERVICE_URL || "http://localhost:3001/api/v1/extract";
+  process.env.PDF_SERVICE_URL ||
+  "https://xyen-pdf-service.onrender.com/api/v1/extract";
 // https://xyen-pdf-service.onrender.com/api/v1/extract
 
 async function getTextFromPDFService(url: string): Promise<string | null> {

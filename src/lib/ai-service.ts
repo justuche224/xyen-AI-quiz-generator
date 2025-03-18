@@ -18,7 +18,7 @@ export async function generateQuiz(text: string, type: string) {
     }
 
     const response = await openai.chat.completions.create({
-      model: "gemini-2.0-flash",
+      model: "gemini-1.5-pro",
       messages: [
         {
           role: "system",

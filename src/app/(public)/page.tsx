@@ -25,7 +25,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
+import { useRouter } from "next/navigation";
 export default function Home() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -55,6 +55,8 @@ export default function Home() {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { duration: 0.8 } },
   };
+
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-background">
@@ -118,6 +120,7 @@ export default function Home() {
                 transition={{ delay: 0.5, duration: 0.5 }}
               >
                 <Button
+                  onClick={() => router.push("/sign-up")}
                   size="lg"
                   className="text-lg px-8 h-12 bg-primary hover:bg-primary/90"
                 >
