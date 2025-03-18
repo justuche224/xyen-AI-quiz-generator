@@ -23,7 +23,6 @@ const PublicNavBar = () => {
     { href: "/about", label: "About Us" },
     { href: "/demo", label: "Demo" },
     { href: "/pricing", label: "Pricing" },
-    { href: "/contact", label: "Contact" },
   ];
 
   return (
@@ -37,7 +36,7 @@ const PublicNavBar = () => {
             width={32}
             height={32}
           />
-          Xyen
+          Xyen AI
         </div>
         <div className="md:flex gap-4 items-center hidden">
           {navLinks.map((link) => (
