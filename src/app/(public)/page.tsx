@@ -10,8 +10,6 @@ import {
   Zap,
   Users,
   CheckCircle,
-  Sun,
-  Moon,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
@@ -28,7 +26,6 @@ import {
 import { useRouter } from "next/navigation";
 export default function Home() {
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -120,6 +117,7 @@ export default function Home() {
                 transition={{ delay: 0.5, duration: 0.5 }}
               >
                 <Button
+                  aria-label="Get Started"
                   onClick={() => router.push("/sign-up")}
                   size="lg"
                   className="text-lg px-8 h-12 bg-primary hover:bg-primary/90"
@@ -127,6 +125,7 @@ export default function Home() {
                   Get Started <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button
+                  aria-label="View Demo"
                   size="lg"
                   variant="outline"
                   className="text-lg px-8 h-12"
@@ -164,8 +163,8 @@ export default function Home() {
                     <Image
                       src="/illustrations/Innovation-pana.png"
                       alt="AI Quiz Generation Illustration"
-                      width={1000}
-                      height={1000}
+                      width={500}
+                      height={500}
                       className="w-full h-auto"
                       priority
                     />
@@ -396,7 +395,9 @@ export default function Home() {
                         <p className="text-center text-muted-foreground mb-4">
                           Drag and drop your files here, or click to browse
                         </p>
-                        <Button size="sm">Browse Files</Button>
+                        <Button aria-label="Browse Files" size="sm">
+                          Browse Files
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -464,7 +465,12 @@ export default function Home() {
                           </span>
                           <span>10</span>
                         </div>
-                        <Button className="w-full mt-4">Generate Quiz</Button>
+                        <Button
+                          aria-label="Generate Quiz"
+                          className="w-full mt-4"
+                        >
+                          Generate Quiz
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -541,8 +547,10 @@ export default function Home() {
                           </div>
                         </div>
                         <div className="flex justify-between">
-                          <Button variant="outline">Previous</Button>
-                          <Button>Next</Button>
+                          <Button aria-label="Previous" variant="outline">
+                            Previous
+                          </Button>
+                          <Button aria-label="Next">Next</Button>
                         </div>
                       </div>
                     </div>
@@ -796,12 +804,18 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button
+                aria-label="Get Started"
                 size="lg"
                 className="text-lg px-8 h-12 bg-primary hover:bg-primary/90"
               >
                 Get Started for Free <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 h-12">
+              <Button
+                aria-label="View Pricing"
+                size="lg"
+                variant="outline"
+                className="text-lg px-8 h-12"
+              >
                 View Pricing
               </Button>
             </div>
@@ -1081,22 +1095,6 @@ export default function Home() {
                   Technology illustrations by Storyset
                 </a>
               </p>
-            </div>
-
-            <div className="flex items-center">
-              <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="p-2 rounded-md hover:bg-muted-foreground/10 transition-colors"
-                aria-label={`Switch to ${
-                  theme === "dark" ? "light" : "dark"
-                } mode`}
-              >
-                {mounted && theme === "dark" ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )}
-              </button>
             </div>
           </div>
         </div>

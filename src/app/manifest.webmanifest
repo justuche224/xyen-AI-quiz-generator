@@ -11,7 +11,7 @@
     {
       "src": "/icons/web/favicon.ico",
       "type": "image/x-icon",
-      "sizes": "16x16 32x32"
+      "sizes": "32x32"
     },
     {
       "src": "/icons/web/icon-192.png",
@@ -51,17 +51,30 @@
     {
       "src": "/screenshots/screenshot-1.png",
       "type": "image/png",
-      "sizes": "1866x959"
+      "sizes": "1866x959",
+      "form_factor": "wide",
+      "label": "Quiz Dashboard"
     },
     {
       "src": "/screenshots/screenshot-2.png",
       "type": "image/png",
-      "sizes": "1866x959"
+      "sizes": "1866x959",
+      "form_factor": "wide",
+      "label": "Quiz Screen"
     },
     {
       "src": "/screenshots/screenshot-3.png",
       "type": "image/png",
-      "sizes": "1866x959"
+      "sizes": "1866x959",
+      "form_factor": "wide",
+      "label": "Generate Quiz"
+    },
+    {
+      "src": "/screenshots/screenshot-4.png",
+      "type": "image/png",
+      "sizes": "1080x2400",
+      "form_factor": "narrow",
+      "label": "Quiz Screen on mobile"
     }
   ],
   "scope": "/",
@@ -75,17 +88,38 @@
     {
       "name": "New Quiz",
       "description": "Create a new quiz",
-      "url": "/dashboard/create-quiz"
+      "url": "/dashboard/create-quiz",
+      "icons": [
+        {
+          "src": "/public/icons/web/icon-96.png",
+          "type": "image/png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Quizzes",
       "description": "View all quizzes",
-      "url": "/dashboard/quizzes"
+      "url": "/dashboard/quizzes",
+      "icons": [
+        {
+          "src": "/public/icons/web/icon-96.png",
+          "type": "image/png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Settings",
       "description": "Manage your account settings",
-      "url": "/dashboard/settings"
+      "url": "/dashboard/settings",
+      "icons": [
+        {
+          "src": "/public/icons/web/icon-96.png",
+          "type": "image/png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ]
 }

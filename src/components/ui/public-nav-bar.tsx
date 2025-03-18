@@ -46,10 +46,15 @@ const PublicNavBar = () => {
           ))}
         </div>
         <div className="md:flex gap-4 hidden">
-          <Button variant="outline" onClick={() => router.push("/sign-in")}>
+          <Button
+            aria-label="Sign In"
+            variant="outline"
+            onClick={() => router.push("/sign-in")}
+          >
             Sign In
           </Button>
           <Button
+            aria-label="Sign Up"
             className="rounded-none"
             onClick={() => router.push("/sign-up")}
           >
@@ -59,7 +64,7 @@ const PublicNavBar = () => {
         </div>
         <div className="inline-block md:hidden">
           <Sheet>
-            <SheetTrigger>
+            <SheetTrigger aria-label="Menu">
               <Menu size={34} />
             </SheetTrigger>
             <SheetContent className="w-[80%] sm:w-[350px] md:hidden flex flex-col p-6">
@@ -83,10 +88,16 @@ const PublicNavBar = () => {
                   ))}
                 </div>
                 <div className="flex flex-col gap-3 w-full">
-                  <Button variant="outline" className="w-full py-6 text-lg">
+                  <Button
+                    aria-label="Sign In"
+                    variant="outline"
+                    className="w-full py-6 text-lg"
+                  >
                     Sign In
                   </Button>
-                  <Button className="w-full py-6 text-lg">Sign Up</Button>
+                  <Button aria-label="Sign Up" className="w-full py-6 text-lg">
+                    Sign Up
+                  </Button>
                 </div>
               </div>
               <SheetFooter>
@@ -114,6 +125,7 @@ const NavBarItem = ({
   const pathname = usePathname();
   return (
     <Button
+      aria-label={href}
       variant="ghost"
       className={`${className} ${pathname === href ? "underline" : ""}`}
     >
