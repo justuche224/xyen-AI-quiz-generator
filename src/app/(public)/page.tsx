@@ -98,7 +98,7 @@ export default function Home() {
                 </motion.h1>
 
                 <motion.p
-                  className="text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-[600px]"
+                  className="text-md lg:text-xl text-muted-foreground leading-relaxed max-w-[600px]"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4, duration: 0.5 }}
@@ -163,8 +163,8 @@ export default function Home() {
                     <Image
                       src="/illustrations/Innovation-pana.png"
                       alt="AI Quiz Generation Illustration"
-                      width={500}
-                      height={500}
+                      width={300}
+                      height={300}
                       className="w-full h-auto"
                       priority
                     />

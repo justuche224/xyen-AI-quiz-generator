@@ -91,7 +91,7 @@
       "url": "/dashboard/create-quiz",
       "icons": [
         {
-          "src": "/public/icons/web/icon-96.png",
+          "src": "/icons/web/icon-96.png",
           "type": "image/png",
           "sizes": "96x96"
         }
@@ -103,7 +103,7 @@
       "url": "/dashboard/quizzes",
       "icons": [
         {
-          "src": "/public/icons/web/icon-96.png",
+          "src": "/icons/web/icon-96.png",
           "type": "image/png",
           "sizes": "96x96"
         }
@@ -115,7 +115,7 @@
       "url": "/dashboard/settings",
       "icons": [
         {
-          "src": "/public/icons/web/icon-96.png",
+          "src": "/icons/web/icon-96.png",
           "type": "image/png",
           "sizes": "96x96"
         }
