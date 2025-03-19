@@ -49,7 +49,7 @@ const NavBar = () => {
     setRoutname(routname);
   }, [pathname]);
   return (
-    <nav className="flex h-14 items-center gap-4 border-b px-4 fixed top-0 left-0 right-0 z-10 bg-sidebar">
+    <nav className="flex h-14 items-center gap-4 border-b px-4 fixed top-0 left-0 right-0 z-50 bg-sidebar">
       <SidebarTrigger />
       <Separator orientation="vertical" className="h-6" />
       <Image

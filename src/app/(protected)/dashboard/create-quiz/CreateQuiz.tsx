@@ -51,7 +51,7 @@ function UploadingMessage() {
   useEffect(() => {
     const interval = setInterval(() => {
       setMessageIndex((prev) => (prev + 1) % messages.length);
-    }, 1500);
+    }, 2500);
 
     return () => clearInterval(interval);
   }, []);
@@ -254,26 +254,7 @@ export default function CreateQuiz() {
                   </SelectContent>
                 </Select>
               </div>
-
-              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer relative">
-                <input
-                  type="file"
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  onChange={handleFileChange}
-                  disabled={uploading}
-                />
-                <div className="flex flex-col items-center justify-center gap-2">
-                  <Upload className="h-10 w-10 text-muted-foreground" />
-                  <p className="font-medium">
-                    {file ? file.name : "Click or drag and drop to upload"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Only text documents (PDF, TXT, DOC, DOCX, CSV, RTF)
-                  </p>
-                </div>
-              </div>
-
-              {uploading && (
+              {uploading ? (
                 <div className="flex flex-col items-center justify-center py-4 space-y-4">
                   <div className="relative">
                     <div className="animate-bounce">
@@ -284,6 +265,24 @@ export default function CreateQuiz() {
                     </div>
                   </div>
                   <UploadingMessage />
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer relative">
+                  <input
+                    type="file"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    onChange={handleFileChange}
+                    disabled={uploading}
+                  />
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <Upload className="h-10 w-10 text-muted-foreground" />
+                    <p className="font-medium">
+                      {file ? file.name : "Click or drag and drop to upload"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Only text documents (PDF, TXT, DOC, DOCX, CSV, RTF)
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
