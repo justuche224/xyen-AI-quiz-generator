@@ -2,7 +2,7 @@
   "name": "Xyen AI Quizzer",
   "short_name": "Xyen Quizzer",
   "description": "Generate and Practice Exam questions from PDF, TXT, DOC, DOCX, CSV, RTF documents or Prompts",
-  "start_url": "/",
+  "start_url": "/dashboard/quizzes",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone"],
   "theme_color": "#ddffb3",
@@ -91,7 +91,7 @@
       "url": "/dashboard/create-quiz",
       "icons": [
         {
-          "src": "/icons/web/icon-96.png",
+          "src": "/icons/web/xyen-add.png",
           "type": "image/png",
           "sizes": "96x96"
         }
@@ -103,7 +103,7 @@
       "url": "/dashboard/quizzes",
       "icons": [
         {
-          "src": "/icons/web/icon-96.png",
+          "src": "/icons/web/xyen-quiz.png",
           "type": "image/png",
           "sizes": "96x96"
         }
@@ -115,7 +115,19 @@
       "url": "/dashboard/settings",
       "icons": [
         {
-          "src": "/icons/web/icon-96.png",
+          "src": "/icons/web/xyen-settings.png",
+          "type": "image/png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "description": "Manage your account",
+      "url": "/dashboard/account",
+      "icons": [
+        {
+          "src": "/icons/web/xyen-account.png",
           "type": "image/png",
           "sizes": "96x96"
         }
