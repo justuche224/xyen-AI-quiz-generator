@@ -6,6 +6,7 @@ const openai = new OpenAI({
 });
 
 export async function generateQuiz(text: string, type: string) {
+  console.log("generating quiz");
   try {
     let quiztype: string;
 
@@ -18,7 +19,7 @@ export async function generateQuiz(text: string, type: string) {
     }
 
     const response = await openai.chat.completions.create({
-      model: "gemini-1.5-pro",
+      model: "gemini-1.5-flash",
       messages: [
         {
           role: "system",
@@ -54,6 +55,17 @@ export async function generateQuiz(text: string, type: string) {
         },
       ],
     });
+    console.log(
+      "response beginning",
+      response.choices[0].message.content?.slice(0, 20)
+    );
+    // slice the last 20 characters
+    console.log(
+      "response ending",
+      response.choices[0].message.content?.slice(
+        response.choices[0].message.content?.length - 20
+      )
+    );
     let rawContent = response.choices[0].message.content || "";
 
     // Step 1: Remove any markdown code block indicators

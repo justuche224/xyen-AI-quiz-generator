@@ -102,6 +102,9 @@ export async function POST(req: Request) {
       console.log("text gotten", text.substring(0, 100) + "...");
 
       const generatedQuiz = await generateQuiz(text, type);
+
+      console.log("got quiz", generateQuiz.length);
+
       console.log(Array.isArray(generatedQuiz));
 
       if (!Array.isArray(generatedQuiz)) {
