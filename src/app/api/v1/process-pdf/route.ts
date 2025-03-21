@@ -7,7 +7,11 @@ import { eq } from "drizzle-orm";
 const PDF_SERVICE_URL =
   process.env.PDF_SERVICE_URL ||
   "https://xyen-pdf-service.onrender.com/api/v1/extract";
-// https://xyen-pdf-service.onrender.com/api/v1/extract
+
+const AI_SERVICE_URL =
+  process.env.AI_SERVICE_URL ||
+  "https://xyen-ai-service.onrender.com/api/v1/generate-quiz";
+// "http://localhost:3002/api/v1/generate-quiz";
 
 async function getTextFromPDFService(url: string): Promise<string | null> {
   try {
@@ -85,6 +89,8 @@ export async function POST(req: Request) {
   console.log("quizData", quizData);
 
   if (!quizData || !quizData[0]?.id) {
+    console.log("failed to create quiz in db");
+
     return new Response(JSON.stringify({ error: "Failed to create quiz" }), {
       status: 500,
     });
@@ -96,16 +102,23 @@ export async function POST(req: Request) {
     try {
       console.log("start bg process");
 
-      const text = await getTextFromPDFService(pdfLink);
+      const res = await fetch(AI_SERVICE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.AI_SERVICE_API_KEY}`,
+        },
+        body: JSON.stringify({ url: pdfLink, type }),
+      });
 
-      if (!text) throw new Error("failed to extract text from pdf");
-      console.log("text gotten", text.substring(0, 100) + "...");
+      if (!res.ok) {
+        console.log("failed to generate quiz AI_SERVICE");
+        throw new Error("Failed to generate quiz ");
+      }
 
-      const generatedQuiz = await generateQuiz(text, type);
+      const data = await res.json();
 
-      console.log("got quiz", generateQuiz.length);
-
-      console.log(Array.isArray(generatedQuiz));
+      const generatedQuiz = data.quiz;
 
       if (!Array.isArray(generatedQuiz)) {
         throw new Error("Failed to generate quiz");

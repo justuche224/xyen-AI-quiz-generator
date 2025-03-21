@@ -117,6 +117,7 @@ export default function CreateQuiz() {
     }
 
     try {
+      setError(null);
       setUploading(true);
 
       // Create a unique file name
@@ -183,8 +184,8 @@ export default function CreateQuiz() {
         }
       }
 
-      setFile(null);
-      setTitle("");
+      // setFile(null);
+      // setTitle("");
       if (!failedStatus) {
         setError(null);
       }
