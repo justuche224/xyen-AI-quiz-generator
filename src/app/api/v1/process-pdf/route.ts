@@ -4,8 +4,9 @@ import { checkAuthSession } from "@/lib/server-auth-helper";
 import { eq } from "drizzle-orm";
 
 const AI_SERVICE_URL =
-  process.env.AI_SERVICE_URL || "http://localhost:3002/api/v1/generate-quiz";
-// "https://xyen-ai-service.onrender.com/api/v1/generate-quiz";
+  process.env.AI_SERVICE_URL ||
+  "https://xyen-ai-service.onrender.com/api/v1/generate-quiz";
+// "http://localhost:3002/api/v1/generate-quiz";
 
 export async function POST(req: Request) {
   try {
