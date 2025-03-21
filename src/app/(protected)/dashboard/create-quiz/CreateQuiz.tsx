@@ -1,8 +1,6 @@
 "use client";
 
-import type React from "react";
-
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { Upload, FileText, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +24,14 @@ import { Label } from "@/components/ui/label";
 import { getStorage } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
+type QuestionType = "MULTICHOICE" | "YESNO";
+type QuizStatus = "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
+
+interface QuizStatusResponse {
+  status: QuizStatus;
+  quizId: string;
+}
+
 const ALLOWED_FILE_TYPES = [
   "application/pdf",
   "text/plain",
@@ -34,6 +40,10 @@ const ALLOWED_FILE_TYPES = [
   "text/csv",
   "application/rtf",
 ];
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const POLL_INTERVAL = 5000; // 5 seconds
+const MAX_POLL_TIME = 10 * 60 * 1000; // 10 minutes
 
 function UploadingMessage() {
   const messages = [
@@ -46,7 +56,7 @@ function UploadingMessage() {
     "Almost there...",
   ];
 
-  const [messageIndex, setMessageIndex] = useState(0);
+  const [messageIndex, setMessageIndex] = useState<number>(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -63,19 +73,18 @@ function UploadingMessage() {
   );
 }
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MBSS
-
 export default function CreateQuiz() {
   const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const [uploading, setUploading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [title, setTitle] = useState("");
-  const [questionType, setQuestionType] = useState<"MULTICHOICE" | "YESNO">(
-    "MULTICHOICE"
-  );
+  const [title, setTitle] = useState<string>("");
+  const [questionType, setQuestionType] = useState<QuestionType>("MULTICHOICE");
+  const [quizId, setQuizId] = useState<string | null>(null);
+  const [pollCount, setPollCount] = useState<number>(0);
   const router = useRouter();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle file validation
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
     if (!e.target.files || e.target.files.length === 0) {
       setFile(null);
       return;
@@ -108,7 +117,63 @@ export default function CreateQuiz() {
     setFile(selectedFile);
   };
 
-  const uploadFile = async () => {
+  // Poll for quiz status
+  useEffect(() => {
+    let pollTimer: NodeJS.Timeout;
+
+    const checkQuizStatus = async (): Promise<void> => {
+      if (!quizId) return;
+
+      try {
+        const res = await fetch(`/api/v1/quiz-status/${quizId}`);
+
+        if (!res.ok) {
+          console.error("Failed to check quiz status:", res.status);
+          return;
+        }
+
+        const data = (await res.json()) as QuizStatusResponse;
+        const status = data.status.toLowerCase();
+
+        if (status === "failed") {
+          setError("Quiz generation failed. Please try again.");
+          setUploading(false);
+          setQuizId(null);
+          return;
+        }
+
+        if (status === "completed") {
+          router.push(`/dashboard/quizzes/${quizId}`);
+          return;
+        }
+
+        // Continue polling if still processing
+        if (status === "processing" || status === "queued") {
+          setPollCount((prev) => prev + 1);
+
+          // Stop polling if it's taking too long
+          if (pollCount * POLL_INTERVAL >= MAX_POLL_TIME) {
+            setError(
+              "Quiz generation is taking longer than expected. You'll be notified when it's ready."
+            );
+            setUploading(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Error checking quiz status:", err);
+      }
+    };
+
+    if (quizId && uploading) {
+      pollTimer = setTimeout(checkQuizStatus, POLL_INTERVAL);
+    }
+
+    return () => clearTimeout(pollTimer);
+  }, [quizId, uploading, pollCount, router]);
+
+  // Upload file and start quiz generation
+  const uploadFile = async (): Promise<void> => {
     if (!file) return;
 
     if (!title.trim()) {
@@ -119,38 +184,32 @@ export default function CreateQuiz() {
     try {
       setError(null);
       setUploading(true);
+      setPollCount(0);
 
       // Create a unique file name
-      const fileExt = file.name.split(".").pop();
-      console.log(fileExt);
+      const fileExt = file.name.split(".").pop() || "";
       const fileName = `${Math.random()
         .toString(36)
         .substring(2, 15)}.${fileExt}`;
-      console.log(fileName);
       const filePath = `documents/${fileName}`;
-      console.log(filePath);
       const storage = getStorage();
 
-      const { data, error } = await storage
+      // Upload the file
+      const { data, error: uploadError } = await storage
         .from("xyen")
         .upload(filePath, file, {
           cacheControl: "3600",
           upsert: false,
         });
 
-      console.log("done");
-
-      if (error) throw error;
-
-      console.log(data);
+      if (uploadError) throw uploadError;
 
       // Get public URL for the file
       const {
         data: { publicUrl },
       } = storage.from("xyen").getPublicUrl(filePath);
 
-      // console.log("Document uploaded successfully. URL:", publicUrl);
-
+      // Start quiz generation process
       const processRes = await fetch("/api/v1/process-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -160,39 +219,21 @@ export default function CreateQuiz() {
           title: title,
         }),
       });
-      const { quizId } = await processRes.json();
 
-      let quizData;
-      let failedStatus = false;
-
-      while (!quizData && !failedStatus) {
-        const statusRes = await fetch(`/api/v1/quiz-status/${quizId}`);
-        const data = await statusRes.json();
-        if (data.status.toLocaleLowerCase() === "failed") {
-          failedStatus = true;
-          // console.log("Quiz generation failed");
-          setError("Quiz generation failed. Please try again.");
-          break;
-        } else if (data.status.toLocaleLowerCase() === "completed") {
-          quizData = data;
-          // console.log("Data", data);
-          router.push(`/dashboard/quizzes/${quizData.quizId}`);
-          break;
-        } else {
-          // console.log(data);
-          await new Promise((resolve) => setTimeout(resolve, 10000));
-        }
+      if (!processRes.ok) {
+        const errorData = await processRes.json();
+        throw new Error(errorData.error || "Failed to start quiz generation");
       }
 
-      // setFile(null);
-      // setTitle("");
-      if (!failedStatus) {
-        setError(null);
-      }
-    } catch (error: any) {
-      console.log(error);
-      setError(error.message || "Error uploading file");
-    } finally {
+      const { quizId: newQuizId } = (await processRes.json()) as {
+        quizId: string;
+      };
+      setQuizId(newQuizId);
+    } catch (err) {
+      console.error("Error during upload or processing:", err);
+      setError(
+        err instanceof Error ? err.message : "Error processing document"
+      );
       setUploading(false);
     }
   };
@@ -241,8 +282,8 @@ export default function CreateQuiz() {
                 </Label>
                 <Select
                   value={questionType}
-                  onValueChange={(value) =>
-                    setQuestionType(value as "MULTICHOICE" | "YESNO")
+                  onValueChange={(value: QuestionType) =>
+                    setQuestionType(value)
                   }
                   disabled={uploading}
                 >
@@ -255,6 +296,7 @@ export default function CreateQuiz() {
                   </SelectContent>
                 </Select>
               </div>
+
               {uploading ? (
                 <div className="flex flex-col items-center justify-center py-4 space-y-4">
                   <div className="relative">

@@ -61,6 +61,7 @@ export const verification = pgTable("verification", {
 export const quizTypeEnum = pgEnum("quiz_type", ["MULTICHOICE", "YESANDNO"]);
 
 export const quizStatusEnum = pgEnum("quiz_status", [
+  "QUEUED",
   "PROCESSING",
   "COMPLETED",
   "FAILED",
@@ -86,6 +87,7 @@ export const quiz = pgTable("quiz", {
   data: json("data"),
   type: quizTypeEnum("type").notNull(),
   status: quizStatusEnum("status").notNull().default("PROCESSING"),
+  error: text("error"),
   pdfId: text("pdf_id")
     .notNull()
     .references(() => pdf.id, { onDelete: "cascade" }),

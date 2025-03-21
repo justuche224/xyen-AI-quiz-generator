@@ -1,150 +1,112 @@
 import { db } from "@/db";
-import { generateQuiz } from "@/lib/ai-service";
-import { checkAuthSession } from "@/lib/server-auth-helper";
 import { pdf, quiz } from "@/db/schema";
+import { checkAuthSession } from "@/lib/server-auth-helper";
 import { eq } from "drizzle-orm";
 
-const PDF_SERVICE_URL =
-  process.env.PDF_SERVICE_URL ||
-  "https://xyen-pdf-service.onrender.com/api/v1/extract";
-
 const AI_SERVICE_URL =
-  process.env.AI_SERVICE_URL ||
-  "https://xyen-ai-service.onrender.com/api/v1/generate-quiz";
-// "http://localhost:3002/api/v1/generate-quiz";
+  process.env.AI_SERVICE_URL || "http://localhost:3002/api/v1/generate-quiz";
+// "https://xyen-ai-service.onrender.com/api/v1/generate-quiz";
 
-async function getTextFromPDFService(url: string): Promise<string | null> {
+export async function POST(req: Request) {
   try {
-    console.log("Calling PDF service for:", url);
-    const response = await fetch(PDF_SERVICE_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ url }),
-    });
+    const { pdfLink, type, title } = await req.json();
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        `PDF service error: ${response.status} - ${JSON.stringify(errorData)}`
+    if (!pdfLink || !type || !title) {
+      return new Response(
+        JSON.stringify({ error: "PDF, Quiz Type and Title are required" }),
+        { status: 400 }
       );
     }
 
-    const data = await response.json();
-
-    if (!data.success || !data.text) {
-      throw new Error("PDF service returned an error");
+    const session = await checkAuthSession();
+    if (!session) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+      });
     }
 
-    console.log(`Successfully extracted ${data.textLength} characters of text`);
-    return data.text;
-  } catch (error) {
-    console.error("PDF extraction service error:", error);
-    return null;
-  }
-}
+    const pdfData = await db
+      .insert(pdf)
+      .values({
+        userId: session.user.id,
+        pdfLink,
+      })
+      .returning();
 
-export async function POST(req: Request) {
-  const { pdfLink, type, title } = await req.json();
+    const quizData = await db
+      .insert(quiz)
+      .values({
+        pdfId: pdfData[0].id,
+        status: "QUEUED",
+        type: type,
+        userId: session.user.id,
+        title,
+      })
+      .returning();
 
-  if (!pdfLink || !type || !title) {
-    return new Response(
-      JSON.stringify({ error: "PDF, Quiz Type and Title are required" }),
-      {
-        status: 400,
-      }
-    );
-  }
+    if (!quizData || !quizData[0]?.id) {
+      return new Response(JSON.stringify({ error: "Failed to create quiz" }), {
+        status: 500,
+      });
+    }
 
-  const session = await checkAuthSession();
+    const quizId = quizData[0].id;
 
-  if (!session) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-    });
-  }
-
-  const pdfData = await db
-    .insert(pdf)
-    .values({
-      userId: session.user.id,
-      pdfLink,
-    })
-    .returning();
-
-  console.log("pdfData", pdfData);
-
-  const quizData = await db
-    .insert(quiz)
-    .values({
-      pdfId: pdfData[0].id,
-      status: "PROCESSING",
-      type: type,
-      userId: session.user.id,
-      title,
-    })
-    .returning();
-
-  console.log("quizData", quizData);
-
-  if (!quizData || !quizData[0]?.id) {
-    console.log("failed to create quiz in db");
-
-    return new Response(JSON.stringify({ error: "Failed to create quiz" }), {
-      status: 500,
-    });
-  }
-
-  const quizId = quizData[0].id;
-
-  (async () => {
+    // 3. Trigger background job without waiting for it to complete
     try {
-      console.log("start bg process");
+      // Update status to PROCESSING to indicate job has started
+      await db
+        .update(quiz)
+        .set({ status: "PROCESSING" })
+        .where(eq(quiz.id, quizId));
 
-      const res = await fetch(AI_SERVICE_URL, {
+      // Fire-and-forget approach - won't await this
+      fetch(AI_SERVICE_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${process.env.AI_SERVICE_API_KEY}`,
+          "X-Quiz-ID": quizId,
         },
-        body: JSON.stringify({ url: pdfLink, type }),
+        body: JSON.stringify({
+          url: pdfLink,
+          type,
+          callbackUrl: `http://localhost:3000/api/v1/quiz-callback`,
+        }),
+      }).catch((error) => {
+        console.error("Error invoking AI service:", error);
+        // a background task
+        db.update(quiz)
+          .set({ status: "FAILED", error: "Failed to contact AI service" })
+          .where(eq(quiz.id, quizId))
+          .then(() => console.log("Quiz status updated to FAILED"))
+          .catch((error) =>
+            console.error("Failed to update quiz status:", error)
+          );
       });
 
-      if (!res.ok) {
-        console.log("failed to generate quiz AI_SERVICE");
-        throw new Error("Failed to generate quiz ");
-      }
-
-      const data = await res.json();
-
-      const generatedQuiz = data.quiz;
-
-      if (!Array.isArray(generatedQuiz)) {
-        throw new Error("Failed to generate quiz");
-      }
-
-      await db
-        .update(quiz)
-        .set({
-          data: JSON.stringify(generatedQuiz),
-          status: "COMPLETED",
-        })
-        .where(eq(quiz.id, quizId));
-
-      console.log("quiz updated");
+      // 4. Return success response with the quiz ID immediately
+      return new Response(JSON.stringify({ quizId }), {
+        status: 202, // 202 Accepted - indicating processing started but not completed
+      });
     } catch (error) {
+      console.error("Error starting quiz generation:", error);
       await db
         .update(quiz)
         .set({
           status: "FAILED",
+          error: "Failed to start quiz generation",
         })
         .where(eq(quiz.id, quizId));
-      console.error("Processing failed:", error);
-    }
-  })();
 
-  return new Response(JSON.stringify({ quizId: quizId }), {
-    status: 200,
-  });
+      return new Response(JSON.stringify({ error: "Failed to process quiz" }), {
+        status: 500,
+      });
+    }
+  } catch (error) {
+    console.error("Unhandled exception in quiz processing:", error);
+    return new Response(JSON.stringify({ error: "Server error" }), {
+      status: 500,
+    });
+  }
 }
