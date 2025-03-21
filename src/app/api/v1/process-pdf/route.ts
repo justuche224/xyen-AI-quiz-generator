@@ -71,7 +71,7 @@ export async function POST(req: Request) {
         body: JSON.stringify({
           url: pdfLink,
           type,
-          callbackUrl: `http://localhost:3000/api/v1/quiz-callback`,
+          callbackUrl: `https://xyen-ai.vercel.app/api/v1/quiz-callback`,
         }),
       }).catch((error) => {
         console.error("Error invoking AI service:", error);
